@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "쪼개 상황실 - 커뮤니티 에디션",
+  "version": "2.0.1",
+  "version_name": "2.0.1(a)",
+  "description": "아홀로 루파 후원 내역, 통나무·구독·카페 공지글과 최신 방송·영상을 5분마다 확인하는 비공식 팬 도구입니다.",
+  "minimum_chrome_version": "114",
+  "permissions": [
+    "alarms",
+    "sidePanel",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.chzzk.naver.com/*",
+    "https://apis.naver.com/*",
+    "https://comm-api.game.naver.com/*",
+    "https://www.youtube.com/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "쪼개 상황실 열기"
+  },
+  "side_panel": {
+    "default_path": "dashboard/dashboard.html"
+  }
+}

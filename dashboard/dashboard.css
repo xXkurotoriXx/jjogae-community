@@ -453,6 +453,12 @@ select:focus, textarea:focus { border-color: rgba(0, 255, 163, 0.6); }
 .setting-row strong { font-size: 13px; }
 .setting-row p { max-width: 480px; margin: 5px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
 .setting-row input { width: 34px; height: 19px; accent-color: var(--mint); }
+.experimental-settings { min-width: 0; margin: 20px 0; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; }
+.experimental-settings legend { padding: 0 6px; color: var(--mint); font-size: 13px; font-weight: 700; }
+.experimental-note { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.experimental-settings .setting-row:last-child { border-bottom: 0; }
+.profile-settings .experimental-settings .setting-row { flex-direction: row; align-items: center; cursor: pointer; }
+.experimental-settings input[type="checkbox"] { flex: none; }
 .settings-actions { justify-content: space-between; padding: 0 0 17px; }
 .privacy-note { padding: 13px 4px; color: var(--muted); font-size: 10px; line-height: 1.6; }
 

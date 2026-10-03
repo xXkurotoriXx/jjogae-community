@@ -4,6 +4,7 @@ import { mergeCafeReadState, normalizeCafeReadState } from "./cafe-read-state.js
 import { fetchChzzkAccountState, syncRupaDonations } from "./chzzk-sync.js";
 import { fetchRupaSubscription, isRupaSubscriptionFresh } from "./chzzk-subscription-sync.js";
 import { fetchCommunityMedia, isMediaFresh } from "./media-sync.js";
+import { loadRupaModeMedia } from "./rupa-mode-media.js";
 import { fetchRupaLogPower, isLogPowerFresh, RUPA_CHANNEL_ID } from "./log-power-sync.js";
 import { DEFAULT_COMMUNITY_SETTINGS, normalizeCommunitySettings, validateCommunitySettings } from "./settings.js";
 
@@ -21,6 +22,7 @@ const FULL_SYNC_INTERVAL_MINUTES = 5;
 const CAFE_CACHE_MS = FULL_SYNC_INTERVAL_MINUTES * 60 * 1000;
 const DONATION_TYPES = new Set(["CHAT", "VIDEO", "MISSION", "TTS", "PARTY"]);
 let mediaRefreshPromise = null;
+let rupaModeMediaPending = null;
 let powerRefreshPromise = null;
 let subscriptionRefreshPromise = null;
 let accountRefreshPromise = null;
@@ -398,6 +400,15 @@ function isExtensionPage(sender) {
   }
 }
 
+function isRupaModeContentScript(sender) {
+  if (sender?.id !== chrome.runtime.id || sender.frameId !== 0) return false;
+  try {
+    return new URL(sender.url || "").origin === "https://chzzk.naver.com";
+  } catch {
+    return false;
+  }
+}
+
 async function ensureFullSyncAlarm() {
   await chrome.alarms.create(FULL_SYNC_ALARM, {
     delayInMinutes: FULL_SYNC_INTERVAL_MINUTES,
@@ -426,9 +437,20 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
-    if (!isExtensionPage(sender)) throw new Error("허용되지 않은 요청입니다.");
+    const allowed = message?.type === "GET_RUPA_MODE_MEDIA"
+      ? isRupaModeContentScript(sender)
+      : isExtensionPage(sender);
+    if (!allowed) throw new Error("허용되지 않은 요청입니다.");
 
     switch (message?.type) {
+      case "GET_RUPA_MODE_MEDIA": {
+        if (!(await getSettings()).rupaMode) throw new Error("루파모드가 꺼져 있습니다.");
+        if (!rupaModeMediaPending) {
+          rupaModeMediaPending = loadRupaModeMedia().finally(() => { rupaModeMediaPending = null; });
+        }
+        sendResponse({ ok: true, media: await rupaModeMediaPending });
+        break;
+      }
       case "GET_SNAPSHOT": {
         const [events, settings, sync, accountState, media, powerState, chzzkSubscriptionState, cafeState, cafeReadState, syncState] = await Promise.all([
           getEvents({ limit: Math.min(20000, Math.max(1, Number(message.limit || 20000))) }),

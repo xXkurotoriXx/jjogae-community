@@ -1,6 +1,7 @@
 export const DEFAULT_COMMUNITY_SETTINGS = Object.freeze({
   youtubeSubscriptionStart: "",
-  chzzkSubscriptionStart: ""
+  chzzkSubscriptionStart: "",
+  rupaMode: false
 });
 
 function trimmedValue(value) {
@@ -32,7 +33,8 @@ export function normalizeSubscriptionStartDate(value) {
 export function normalizeCommunitySettings(value = {}) {
   return {
     youtubeSubscriptionStart: normalizeSubscriptionStartDate(value.youtubeSubscriptionStart),
-    chzzkSubscriptionStart: normalizeSubscriptionStartDate(value.chzzkSubscriptionStart)
+    chzzkSubscriptionStart: normalizeSubscriptionStartDate(value.chzzkSubscriptionStart),
+    rupaMode: value.rupaMode === true
   };
 }
 
@@ -41,7 +43,7 @@ export function validateCommunitySettings(value = {}) {
     ["youtubeSubscriptionStart", "YouTube 구독 시작일"],
     ["chzzkSubscriptionStart", "치지직 구독 시작일"]
   ];
-  const normalized = {};
+  const normalized = { rupaMode: value.rupaMode === true };
   for (const [key, label] of fields) {
     const raw = trimmedValue(value[key]);
     const startDate = normalizeSubscriptionStartDate(raw);

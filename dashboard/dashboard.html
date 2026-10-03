@@ -37,7 +37,6 @@
         <a class="rupa-shortcut cafe" href="https://cafe.naver.com/aholorupacafe" target="_blank" rel="noopener noreferrer"><span class="shortcut-mark" aria-hidden="true"><img class="shortcut-logo" src="assets/shortcuts/cafe.svg" alt=""></span><span>루파의 쪼개 양식장 카페</span></a>
         <a class="rupa-shortcut youtube" href="https://www.youtube.com/@%EC%95%84%ED%99%80%EB%A1%9C_%EB%A3%A8%ED%8C%8C" target="_blank" rel="noopener noreferrer"><span class="shortcut-mark" aria-hidden="true"><img class="shortcut-logo" src="assets/shortcuts/youtube.svg" alt=""></span><span>유튜브</span></a>
         <a class="rupa-shortcut x" href="https://x.com/AholoRupa" target="_blank" rel="noopener noreferrer"><span class="shortcut-mark" aria-hidden="true"><img class="shortcut-logo" src="assets/shortcuts/x.svg" alt=""></span><span>X</span></a>
-        <a class="rupa-shortcut fancim" href="https://fancim.me/celeb/profile.aspx?url=994104" target="_blank" rel="noopener noreferrer"><span class="shortcut-mark" aria-hidden="true"><img class="shortcut-logo" src="assets/shortcuts/fancim.svg" alt=""></span><span>팬심</span></a>
       </nav>
     </div>
 
@@ -167,6 +166,13 @@
         <form id="settings-form" class="settings-card profile-settings">
           <label class="setting-row"><div><strong>YouTube 구독 시작일</strong><p>숫자 8자리 또는 날짜 형식으로 입력하면 요약 화면에 즉시 반영합니다.</p></div><span class="setting-control"><input id="setting-youtube-date" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="예: 20250723"><small id="setting-youtube-preview" class="setting-preview">YYYYMMDD 또는 YYYY-MM-DD</small></span></label>
           <label class="setting-row"><div><strong>치지직 구독 시작일</strong><p>숫자 8자리 또는 날짜 형식으로 입력하면 요약 화면에 즉시 반영합니다.</p></div><span class="setting-control"><input id="setting-chzzk-date" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="예: 20250723"><small id="setting-chzzk-preview" class="setting-preview">YYYYMMDD 또는 YYYY-MM-DD</small></span></label>
+          <fieldset class="experimental-settings">
+            <legend>실험적 기능</legend>
+            <div class="setting-row">
+              <div><label for="setting-rupa-mode"><strong>루파모드</strong></label><p>오직 루파뿐</p></div>
+              <input id="setting-rupa-mode" type="checkbox">
+            </div>
+          </fieldset>
           <div class="settings-actions"><button id="clear-data" class="danger-button" type="button">모든 로컬 데이터 삭제</button><button id="save-settings-button" class="primary-button" type="submit">설정 저장</button></div>
         </form>
         <div class="import-card">

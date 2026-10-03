@@ -24,6 +24,8 @@ let toastTimer;
 let snapshotLoadPromise = null;
 let storageRefreshTimer = null;
 let settingsFormDirty = false;
+let settingsEditRevision = 0;
+let settingsSaving = false;
 let selectedCafeNoticeIds = new Set();
 
 const $ = (selector) => document.querySelector(selector);
@@ -555,6 +557,8 @@ function renderSettings({ force = false } = {}) {
   if (force || (!settingsFormDirty && !formHasFocus)) {
     $("#setting-youtube-date").value = snapshot.settings.youtubeSubscriptionStart || "";
     $("#setting-chzzk-date").value = snapshot.settings.chzzkSubscriptionStart || "";
+    const settings = snapshot.settings;
+    $("#setting-rupa-mode").checked = settings.rupaMode === true;
   }
   for (const field of subscriptionSettingFields()) {
     renderSubscriptionSettingPreview(field.input, field.preview);
@@ -715,6 +719,7 @@ $("#mark-all-cafe-read").addEventListener("click", async () => {
 for (const field of subscriptionSettingFields()) {
   field.input.addEventListener("input", () => {
     settingsFormDirty = true;
+    settingsEditRevision += 1;
     field.input.setCustomValidity("");
     renderSubscriptionSettingPreview(field.input, field.preview);
   });
@@ -728,6 +733,17 @@ for (const field of subscriptionSettingFields()) {
     renderSubscriptionSettingPreview(field.input, field.preview);
   });
 }
+
+$("#setting-rupa-mode").addEventListener("change", () => {
+  const mode = $("#setting-rupa-mode");
+  if (mode.checked) {
+    mode.checked = false;
+    if (!confirm("해당 기능을 켜면 치지직 페이지에 변화가 생깁니다")) return;
+    mode.checked = true;
+  }
+  settingsFormDirty = true;
+  settingsEditRevision += 1;
+});
 
 $("#entry-form").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -751,21 +767,28 @@ $("#entry-form").addEventListener("submit", async (event) => {
 
 $("#settings-form").addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (settingsSaving) return;
   const settings = readSubscriptionSettings({ apply: true, report: true });
   if (!settings) return showToast("구독 시작일의 날짜 형식을 확인해 주세요.");
+  const submittedSettings = { ...settings, rupaMode: $("#setting-rupa-mode").checked };
+  const submittedRevision = settingsEditRevision;
+  settingsSaving = true;
   const button = $("#save-settings-button");
   button.disabled = true;
   try {
-    const response = await chrome.runtime.sendMessage({ type: "SAVE_SETTINGS", settings });
+    const response = await chrome.runtime.sendMessage({ type: "SAVE_SETTINGS", settings: submittedSettings });
     if (!response?.ok) throw new Error(response?.error || "설정을 저장하지 못했습니다.");
-    settingsFormDirty = false;
-    snapshot.settings = response.settings || settings;
-    renderSettings({ force: true });
+    snapshot.settings = response.settings || submittedSettings;
+    if (submittedRevision === settingsEditRevision) {
+      settingsFormDirty = false;
+      renderSettings({ force: true });
+    }
     renderSummary();
-    showToast("구독 시작일을 저장하고 요약에 적용했습니다.");
+    showToast(settingsFormDirty ? "설정을 저장했습니다. 추가로 변경한 내용은 다시 저장해 주세요." : "구독 시작일과 루파모드를 저장했습니다.");
   } catch (error) {
     showToast(error.message);
   } finally {
+    settingsSaving = false;
     button.disabled = false;
   }
 });
@@ -795,6 +818,7 @@ $("#clear-data").addEventListener("click", async () => {
   if (!response?.ok) return showToast(response?.error || "삭제하지 못했습니다.");
   settingsFormDirty = false;
   await loadSnapshot();
+  renderSettings({ force: true });
   showToast("모든 로컬 데이터를 삭제했습니다.");
 });
 
